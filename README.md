@@ -39,8 +39,9 @@ PS：番剧什么的没有需求，以后可能会实现。playlist 也没实现
 如果发现下载不了（注意看粗体）：
 
 1. 很可能是爬虫解析页面的逻辑失效了；
-2. **很可能是在下对于 ruia_pyppeteer 的理解不到位，导致的问题**；
-3. 很可能是 ruia_pyppeteer 有 Bug，至少有一定几率，哪怕是用他们的示例也会出现下载不了（ Response 0 的情况），已经提交相应的 issues；
+2. 有可能是 you-get 下载失效了，自己更新下 you-get 的执行文件；
+3. **很可能是在下对于 ruia_pyppeteer 的理解不到位，导致的问题**；
+4. 很可能是 ruia_pyppeteer 有 Bug，至少有一定几率，哪怕是用他们的示例也会出现下载不了（ Response 0 的情况），已经提交相应的 issues；
 
 so，提交 issues 记得发日志哈。
 
