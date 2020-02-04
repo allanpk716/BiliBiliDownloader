@@ -14,6 +14,8 @@ from you_get import common as you_get
 
 from LogHelper import LogHelper
 
+g_downloadItemCount_dic = {}
+
 class PreProcess():
     def __init__(self, **kwargs):
         super().__init__()
@@ -126,6 +128,11 @@ class BiliSpider(Spider):
             self.concurrency = kwargs['concurrency']
         else:
             self.concurrency = 1
+
+        # 存储每个 Up 主下载了多少集
+        global g_downloadItemCount_dic
+        for oneUrl in self.start_urls:
+            g_downloadItemCount_dic[self.start_urls_UserName_dic[oneUrl]] = 0
         
         self.logger.info("start_urls Count: " + str(len(self.start_urls)))
 
@@ -140,40 +147,51 @@ class BiliSpider(Spider):
             directory = os.path.join(self.saveRootPath, nowUserName)
             # 去除特殊字符，否则下载文件会有问题
             fileName = re.sub('[\/:*?"<>|]','-', item.title)
-            sys.argv = ['you-get','-o', directory, '-O', item.time + "_" + fileName, item.url]
+            sys.argv = ['you-get','--debug', '-o', directory, '-O', item.time + "_" + fileName, item.url]
             self.logger.info("start download···")
             you_get.main()
             self.logger.info("end download")
+            global g_downloadItemCount_dic
+            g_downloadItemCount_dic[nowUserName] = g_downloadItemCount_dic[nowUserName] + 1
 
     # async def process_item(self, item):
     #     await print(item.title)
 
 if __name__ == '__main__':
-    logger = LogHelper('Bili', cmdLevel='INFO', fileLevel="DEBUG").logger
-    # 李永乐
-    # start_urls = ['https://space.bilibili.com/9458053/video']
-    # 巫师财经
-    # start_urls = ['https://space.bilibili.com/472747194/video']
-    # 回形针PaperClip
-    # start_urls = ['https://space.bilibili.com/258150656/video']
-    # 柴知道
-    # start_urls = ['https://space.bilibili.com/26798384/video']
-    start_urls = [
-        '9458053',      # 李永乐
-        '472747194',    # 巫师财经
-        '258150656',    # 回形针PaperClip
-        '26798384',     # 柴知道
-    ]
-    concurrency = 1
-    saveRootPath = r'D:\Bilibili'
+    logger = LogHelper('Bili', debug=True, cmdLevel='INFO', fileLevel="DEBUG").logger
+    try:
+        # 李永乐
+        # start_urls = ['https://space.bilibili.com/9458053/video']
+        # 巫师财经
+        # start_urls = ['https://space.bilibili.com/472747194/video']
+        # 回形针PaperClip
+        # start_urls = ['https://space.bilibili.com/258150656/video']
+        # 柴知道
+        # start_urls = ['https://space.bilibili.com/26798384/video']
+        start_urls = [
+            '9458053',      # 李永乐
+            '472747194',    # 巫师财经
+            '258150656',    # 回形针PaperClip
+            '26798384',     # 柴知道
+        ]
+        concurrency = 1
+        saveRootPath = r'D:\Bilibili'
 
-    pp = PreProcess(start_urls=start_urls, logger = logger)
+        pp = PreProcess(start_urls=start_urls, logger = logger)
 
-    assert len(pp.start_urls) > 0, 'Error: Check your network. pp.start_urls <= 0 '
+        assert len(pp.start_urls) > 0, 'Error: Check your network. pp.start_urls <= 0 '
+        
+        BiliSpider.start(logger = logger,
+                        start_urls=pp.start_urls,
+                        saveRootPath = saveRootPath,
+                        start_urls_UserName_dic = pp.start_urls_UserName_dic,
+                        concurrency=concurrency, 
+                        middleware=middleware)
+    except Exception as ex:
+        logger.error(ex)
+    finally:
+        # global g_downloadItemCount_dic
+        for k, v in zip(g_downloadItemCount_dic.keys(), g_downloadItemCount_dic.values()):
+            print(k + " -- " + str(v))
+        logger.info("All Done.")
     
-    BiliSpider.start(logger = logger,
-                    start_urls=pp.start_urls,
-                    saveRootPath = saveRootPath,
-                    start_urls_UserName_dic = pp.start_urls_UserName_dic,
-                    concurrency=concurrency, 
-                    middleware=middleware)
