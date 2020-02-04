@@ -43,7 +43,7 @@ PS：番剧什么的没有需求，以后可能会实现。playlist 也没实现
 3. **很可能是在下对于 ruia_pyppeteer 的理解不到位，导致的问题**；
 4. 很可能是 ruia_pyppeteer 有 Bug，至少有一定几率，哪怕是用他们的示例也会出现下载不了（ Response 0 的情况），已经提交相应的 issues；
 
-so，提交 issues 记得发日志哈。
+so，提交 issues 记得发日志哈。程序运行过一次后，会新建一个 Logs 文件夹，在根目录，每次一个文件。
 
 ## Base On
 
