@@ -28,7 +28,7 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 
 参考 BiliSpider.py 。
 
-![00](ReadMe\00.png)
+![00](ReadMe/00.png)
 
 目前只支持 <https://space.bilibili.com/XXXXX/video> 页面下的所有视频的下载。
 
