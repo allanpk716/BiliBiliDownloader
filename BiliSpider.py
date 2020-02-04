@@ -12,9 +12,15 @@ import os
 import sys
 from you_get import common as you_get
 
+from LogHelper import LogHelper
+
 class PreProcess():
     def __init__(self, **kwargs):
         super().__init__()
+        # --------------------------------------------------------------------------------------
+        # 日志
+        if 'logger' in kwargs:
+            self.logger = kwargs['logger']
         # --------------------------------------------------------------------------------------
         # 便于后续从 Url 得到 PageCount
         self.start_urls_PageCount_dic = {}
@@ -32,14 +38,16 @@ class PreProcess():
                 self.start_urls_Pre.append(tmpUrl)
                 self.start_urls_UserID_dic[tmpUrl] = oneI
         else:
-            raise Exception("Error:You Need Set start_urls")
+            info = "Error:You Need Set start_urls"
+            self.logger.error(info)
+            raise Exception(info)
         # --------------------------------------------------------------------------------------
         # 找到每个 UP 主有的页数
         for oneSpaceUrl in self.start_urls_Pre:
             pageInfo, userInfo = asyncio.get_event_loop().run_until_complete(self.GetPageInfo(oneSpaceUrl))
             self.start_urls_PageCount_dic[oneSpaceUrl] = pageInfo.count
             self.start_urls_UserInfo_dic[oneSpaceUrl] = userInfo.UserName
-        print('GetPageInfo Done.')
+        self.logger.info('GetPageInfo Done.')
         # --------------------------------------------------------------------------------------
         # 把所有需要遍历的 page ，每一个 UP 主的，都拼接到 self.start_urls
         self.start_urls = []
@@ -60,10 +68,19 @@ class PreProcess():
                 # break
 
     async def GetPageInfo(self, url):
+        self.logger.info("Requesting " + url)
         request = Request(url, load_js=True)
         response = await request.fetch()
+        self.logger.info("fetched " + url)
+
+        self.logger.info("PageItem.get_item start")
         pageInfo = await PageItem.get_item(html=response.html)
+        self.logger.info("PageItem.get_item end")
+
+        self.logger.info("UserItem.get_item start")
         userInfo = await UserItem.get_item(html=response.html)
+        self.logger.info("UserItem.get_item end")
+
         return pageInfo, userInfo
         
 class BiliSpider(Spider):
@@ -73,26 +90,36 @@ class BiliSpider(Spider):
     def __init__(self, middleware=None, loop=None, is_async_start=False, cancel_tasks=True, **kwargs):
         super().__init__(middleware=middleware, loop=loop, is_async_start=is_async_start, cancel_tasks=cancel_tasks, **kwargs)
         # --------------------------------------------------------------------------------------
+        # 日志
+        if 'logger' in kwargs:
+            self.logger = kwargs['logger']
+        # --------------------------------------------------------------------------------------
         # 并凑出 UP 主的 Space Url
         if 'start_urls' in kwargs:
             # 预处理缓存
             self.start_urls = kwargs['start_urls']
         else:
-            raise Exception("Error:You Need Set start_urls")
+            info = "Error:You Need Set start_urls"
+            self.logger.error(info)
+            raise Exception(info)
         # --------------------------------------------------------------------------------------
         # 当前下载地址对应的 rootPath
         if 'saveRootPath' in kwargs:
             # 预处理缓存
             self.saveRootPath = kwargs['saveRootPath']
         else:
-            raise Exception("Error:You Need Set saveRootPath")
+            info = "Error:You Need Set saveRootPath"
+            self.logger.error(info)
+            raise Exception(info)
         # --------------------------------------------------------------------------------------
         # 当前下载地址对应的
         if 'start_urls_UserName_dic' in kwargs:
             # 预处理缓存
             self.start_urls_UserName_dic = kwargs['start_urls_UserName_dic']
         else:
-            raise Exception("Error:You Need Set start_urls_UserName_dic")
+            info = "Error:You Need Set start_urls_UserName_dic"
+            self.logger.error(info)
+            raise Exception(info)
         # --------------------------------------------------------------------------------------
         # 并发数
         if 'concurrency' in kwargs:
@@ -100,23 +127,29 @@ class BiliSpider(Spider):
         else:
             self.concurrency = 1
         
-        print("start_urls Count: " + str(len(self.start_urls)))
+        self.logger.info("start_urls Count: " + str(len(self.start_urls)))
 
     async def parse(self, response):
+        self.logger.info("for BiliBiliItem.get_items ···")
+        self.logger.info(response.url)
         async for item in BiliBiliItem.get_items(html=response.html):
-            print(item.title)
-            print(item.url)
+            self.logger.info("parsing···")
+            self.logger.info(item.title)
+            self.logger.info(item.url)
             nowUserName = self.start_urls_UserName_dic[response.url]
             directory = os.path.join(self.saveRootPath, nowUserName)
             # 去除特殊字符，否则下载文件会有问题
             fileName = re.sub('[\/:*?"<>|]','-', item.title)
             sys.argv = ['you-get','-o', directory, '-O', item.time + "_" + fileName, item.url]
+            self.logger.info("start download···")
             you_get.main()
+            self.logger.info("end download")
 
     # async def process_item(self, item):
     #     await print(item.title)
 
 if __name__ == '__main__':
+    logger = LogHelper('Bili', cmdLevel='INFO', fileLevel="DEBUG").logger
     # 李永乐
     # start_urls = ['https://space.bilibili.com/9458053/video']
     # 巫师财经
@@ -134,12 +167,13 @@ if __name__ == '__main__':
     concurrency = 1
     saveRootPath = r'D:\Bilibili'
 
-    pp = PreProcess(start_urls=start_urls)
+    pp = PreProcess(start_urls=start_urls, logger = logger)
 
     assert len(pp.start_urls) > 0, 'Error: Check your network. pp.start_urls <= 0 '
     
-    BiliSpider.start(start_urls=pp.start_urls,
-                        saveRootPath = saveRootPath,
-                        start_urls_UserName_dic = pp.start_urls_UserName_dic,
-                        concurrency=concurrency, 
-                        middleware=middleware)
+    BiliSpider.start(logger = logger,
+                    start_urls=pp.start_urls,
+                    saveRootPath = saveRootPath,
+                    start_urls_UserName_dic = pp.start_urls_UserName_dic,
+                    concurrency=concurrency, 
+                    middleware=middleware)
