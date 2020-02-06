@@ -10,31 +10,37 @@ class BiliBiliItem(Item):
     time = TextField(css_select='span.time')
 
     async def clean_url(self, value):
-        index = value.find(r'//')
-        if index < 0:
-            return value
-        elif index == 0:
-            newValue = value.replace(r'//', '')
-            return newValue
+        try:
+            index = value.find(r'//')
+            if index < 0:
+                return value
+            elif index == 0:
+                newValue = value.replace(r'//', '')
+                return newValue
+        except Exception as ex:
+            print(ex)
 
     async def clean_time(self, value):
-        # 说明日期不符合格式，估计是中文，比如，昨天
-        if value.find('-') < 0:
-            return None
-            
-        vlist = value.split('-')
-        # Y M D
-        if len(vlist) == 3:
-            date = datetime.datetime.strptime(value, '%Y-%m-%d')
-            nowTime = date.strftime("%Y-%m-%d")
-            return nowTime
-        elif len(vlist) == 2:
-            date = str(datetime.datetime.now().year) + "-" + value
-            date = datetime.datetime.strptime(date, '%Y-%m-%d')
-            nowTime = date.strftime("%Y-%m-%d")
-            return nowTime
-        else:
-            raise Exception("Error:BiliBiliItem clean_time else " + nowTime)
+        try:
+            # 说明日期不符合格式，估计是中文，比如，昨天
+            if value.find('-') < 0:
+                return None
+                
+            vlist = value.split('-')
+            # Y M D
+            if len(vlist) == 3:
+                date = datetime.datetime.strptime(value, '%Y-%m-%d')
+                nowTime = date.strftime("%Y-%m-%d")
+                return nowTime
+            elif len(vlist) == 2:
+                date = str(datetime.datetime.now().year) + "-" + value
+                date = datetime.datetime.strptime(date, '%Y-%m-%d')
+                nowTime = date.strftime("%Y-%m-%d")
+                return nowTime
+            else:
+                raise Exception("Error:BiliBiliItem clean_time else " + nowTime)
+        except Exception as ex:
+            print(ex)
 
 class UserItem(Item):
     target_item = TextField(css_select='div.h-user')

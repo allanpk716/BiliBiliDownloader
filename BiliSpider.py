@@ -186,6 +186,7 @@ class BiliSpider(Spider):
         # --------------------------------------------------------------------------------------
         # 拼接 start_urls，也就是 PageList
         # 如果 错误的 url 有，那么start_urls 就要替换
+        self.start_urls.clear()
         if len(self.uper.ErrorUrl_Dic) == 0:
             for onePageUrl in self.uper.PageList:
                 self.start_urls.append(onePageUrl)
@@ -196,6 +197,7 @@ class BiliSpider(Spider):
             # 需要清空
             self.uper.ErrorUrl_Dic.clear()
         
+        self.lock = asyncio.Lock()
         self.logger.info("start_urls Count: " + str(len(self.start_urls)))
 
     async def parse(self, response):
@@ -221,20 +223,29 @@ class BiliSpider(Spider):
                 vi.isDownloaded = False
                 vi.loaclFileName = fileName
 
-                if fileName in self.uper.VideoInfoDic_loaclFileName:
-                    # 存在，则赋值 url 等信息
-                    self.uper.VideoInfoDic_loaclFileName[fileName].url = item.url
-                    self.uper.VideoInfoDic_loaclFileName[fileName].time = item.time
-                    self.uper.VideoInfoDic_loaclFileName[fileName].title = item.title
-                else:
-                    # 不存在，新建
-                    self.uper.VideoInfoDic_loaclFileName[fileName] = vi
-                # 网络动态获取到的
-                self.uper.VideoInfoDic_NetFileName[fileName] = vi
+                try:
+                    await self.lock.acquire()
+                    if fileName in self.uper.VideoInfoDic_loaclFileName:
+                        # 存在，则赋值 url 等信息
+                        self.uper.VideoInfoDic_loaclFileName[fileName].url = item.url
+                        self.uper.VideoInfoDic_loaclFileName[fileName].time = item.time
+                        self.uper.VideoInfoDic_loaclFileName[fileName].title = item.title
+                    else:
+                        # 不存在，新建
+                        self.uper.VideoInfoDic_loaclFileName[fileName] = vi
+                    # 网络动态获取到的
+                    self.uper.VideoInfoDic_NetFileName[fileName] = vi
+                finally:
+                    self.lock.release()
                 
         except Exception as ex:
-            self.uper.ErrorUrl_Dic[response.url] = str(ex)
-            self.logger.error("Error BiliBiliItem: " + ex)
+            try:
+                await self.lock.acquire()
+                self.uper.ErrorUrl_Dic[response.url] = str(ex)
+                self.logger.error("Error BiliBiliItem: " + ex)
+            finally:
+                self.lock.release()
+            
 
         self.logger.info("parsing one Done·")
 
@@ -277,6 +288,7 @@ def MainProcess(uperList, saveRootPath, concurrency = 3):
                     logger.warn("VideoInfoDic_NetFileName Count: " + str(len(uper.VideoInfoDic_NetFileName)) 
                         + " != VideoInfoDic_loaclFileName Count: " + str(len(uper.VideoInfoDic_loaclFileName))
                     )
+            uper.ErrorUrl_Dic.clear()
 
         logger.info("Spider All Done.")
         # --------------------------------------------------------------
@@ -338,11 +350,11 @@ if __name__ == '__main__':
     #                        用户名        用户的 VideoPage ID数
     uperList.append(UperInfo('李永乐',          '9458053'))
     uperList.append(UperInfo('巫师财经',        '472747194'))
-    uperList.append(UperInfo('回形针PaperClip', '258150656'))
-    uperList.append(UperInfo('柴知道',          '26798384',))
+    # uperList.append(UperInfo('回形针PaperClip', '258150656'))
+    # uperList.append(UperInfo('柴知道',          '26798384',))
     saveRootPath = r'D:\Bilibili'
     # 并发数
-    concurrency = 1
+    concurrency = 3
 
     MainProcess(uperList, saveRootPath, concurrency)
     
