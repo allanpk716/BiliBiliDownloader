@@ -16,6 +16,7 @@ from db import MotorBase
 from LogHelper import LogHelper
 from Downloader import Downloader
 import GetUploadTimer
+from Common import RandomSleep
 
 class VideoInfo():
     def __init__(self, iurl):
@@ -95,6 +96,7 @@ class PreProcess():
                     nowUper.VideoInfoDic_loaclFileName[vi.loaclFileName] = vi
 
         self.logger.info('ScanLoclInfo Done.')
+        self.logger.info("ScanLoclInfo Result"+ "----" * 20)
         for uper in self.uperList:
             self.logger.info('Local ' + uper.UserName + ' Got ' + str(len(uper.VideoInfoDic_loaclFileName)) + " Videos.")
         
@@ -111,9 +113,10 @@ class PreProcess():
             # 必须找到总页数
             pgAllTime = 0
             while (uper.PageCount <= 0):
-                if pgAllTime > 3:
+                if pgAllTime > 10:
                     raise Exception("Error:Try get " + uper.UserName + ' PageCount fail.')
                 self.ProcessOneUper(uper)
+                RandomSleep()
                 pgAllTime = pgAllTime + 1
 
         self.logger.info('GetPageInfo Done.')
@@ -235,9 +238,6 @@ class BiliSpider(Spider):
 
         self.logger.info("parsing one Done·")
 
-def RandomSleep():
-    time.sleep(random.randint(0, 5))
-
 def MainProcess(uperList, saveRootPath, concurrency = 3):
     logger = LogHelper('Bili', cmdLevel='INFO', fileLevel="DEBUG").logger
     pp = None
@@ -280,13 +280,19 @@ def MainProcess(uperList, saveRootPath, concurrency = 3):
 
         logger.info("Spider All Done.")
         # --------------------------------------------------------------
+        logger.info("Start Download"+ "----" * 20)
         # 开始下载
         # 先对 local 与 net 的字典进行同步
+        logger.info("Start Sync Dic")
         for uper in pp.uperList:
+            iNeedDl = 0
             for fileName, oneVideo in zip(uper.VideoInfoDic_loaclFileName.keys(), uper.VideoInfoDic_loaclFileName.values()):
                 if fileName in uper.VideoInfoDic_NetFileName:
-                    VideoInfoDic_NetFileName[fileName].isDownloaded = oneVideo.isDownloaded
-
+                    uper.VideoInfoDic_NetFileName[fileName].isDownloaded = oneVideo.isDownloaded
+                    if oneVideo.isDownloaded == False:
+                        iNeedDl = iNeedDl + 1
+            logger.info(uper.UserName + "NetFile / LocalFile -- NeedDl: " + str(len(uper.VideoInfoDic_NetFileName)) + " / " + str(len(uper.VideoInfoDic_loaclFileName)) + " -- " + str(iNeedDl))
+        logger.info("End Sync Dic")
         for uper in pp.uperList:
             directory = os.path.join(saveRootPath, uper.UserName)
             for fileName, oneVideo in zip(uper.VideoInfoDic_NetFileName.keys(), uper.VideoInfoDic_NetFileName.values()):
@@ -313,12 +319,13 @@ def MainProcess(uperList, saveRootPath, concurrency = 3):
         errInfo = "Catch Exception: " + str(ex)
         logger.error(errInfo)
     finally:
+        logger.info("finally"+ "----" * 20)
         for uper in pp.uperList:
             logger.info("This Time Download: " + uper.UserName + " -- " + str(uper.ThisTimeDownloadCount))
         for uper in pp.uperList:
             for fileName, oneVideo in zip(uper.VideoInfoDic_NetFileName.keys(), uper.VideoInfoDic_NetFileName.values()):
-                logger.error('Download Fail:' + uper.UserName)
                 if oneVideo.isDownloaded == False:
+                    logger.error('Download Fail:' + uper.UserName)
                     logger.error(oneVideo.url)
         logger.info("All Done.")
 
@@ -329,10 +336,10 @@ if __name__ == '__main__':
     uperList = []
     # https://space.bilibili.com/9458053/video
     #                        用户名        用户的 VideoPage ID数
-    # uperList.append(UperInfo('李永乐',          '9458053'))
+    uperList.append(UperInfo('李永乐',          '9458053'))
     uperList.append(UperInfo('巫师财经',        '472747194'))
-    # uperList.append(UperInfo('回形针PaperClip', '258150656'))
-    # uperList.append(UperInfo('柴知道',          '26798384',))
+    uperList.append(UperInfo('回形针PaperClip', '258150656'))
+    uperList.append(UperInfo('柴知道',          '26798384',))
     saveRootPath = r'D:\Bilibili'
     # 并发数
     concurrency = 3

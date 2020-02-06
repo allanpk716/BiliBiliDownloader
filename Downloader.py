@@ -17,10 +17,10 @@ class Downloader():
             # 去除特殊字符，否则下载文件会有问题
             fileName = re.sub('[\/:*?"<>|]','-', self.title)
             sys.argv = ['you-get','--debug', '-o', self.directory, '-O', self.time + "_" + fileName, self.url]
-            self.logger.info("start download " + self.url)
+            self.logger.info("start download " + fileName + " -- " +  self.url)
             you_get.main()
             self.logger.info("end download")
             return True
         except Exception as ex:
-            self.logger.error("Downloader Error: " + self.url)
+            self.logger.error("Downloader Error: " + fileName + " -- " +  self.url)
             return False
