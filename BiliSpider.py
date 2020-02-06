@@ -152,7 +152,7 @@ class PreProcess():
         
 class BiliSpider(Spider):
     start_urls = ['']
-    concurrency = 3
+    concurrency = 1
 
     def __init__(self, middleware=None, loop=None, is_async_start=False, cancel_tasks=True, **kwargs):
         super().__init__(middleware=middleware, loop=loop, is_async_start=is_async_start, cancel_tasks=cancel_tasks, **kwargs)
@@ -342,7 +342,7 @@ if __name__ == '__main__':
     uperList.append(UperInfo('柴知道',          '26798384',))
     saveRootPath = r'D:\Bilibili'
     # 并发数
-    concurrency = 3
+    concurrency = 1
 
     MainProcess(uperList, saveRootPath, concurrency)
     
