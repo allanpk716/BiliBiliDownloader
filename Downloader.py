@@ -17,12 +17,10 @@ class Downloader():
         try:
             # 去除特殊字符，否则下载文件会有问题
             fileName = re.sub('[\/:*?"<>|]','-', self.title)
-            # self.newUrl = CheckRedirectUrl(self.url)
-            # if self.newUrl is None:
-            #     raise Exception("CheckRedirectUrl " + self.url + " Fail.")
-            # else:
-            #     self.newUrl = self.url
-            self.newUrl = self.url
+            self.newUrl = CheckRedirectUrl(self.url)
+            if self.newUrl is None:
+                raise Exception("CheckRedirectUrl " + self.url + " Fail.")
+
             sys.argv = ['you-get','--debug', '-o', self.directory, '-O', self.time + "_" + fileName, self.newUrl]
             self.logger.info("start download " + fileName + " -- " +  self.newUrl)
             you_get.main()
