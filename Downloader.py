@@ -12,6 +12,7 @@ class Downloader():
         self.time = itime
         self.title = ititle
         self.url = iurl
+        self.newUrl = ''
 
     def ProcessOne(self):
         try:

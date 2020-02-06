@@ -350,8 +350,8 @@ if __name__ == '__main__':
     #                        用户名        用户的 VideoPage ID数
     uperList.append(UperInfo('李永乐',          '9458053'))
     uperList.append(UperInfo('巫师财经',        '472747194'))
-    # uperList.append(UperInfo('回形针PaperClip', '258150656'))
-    # uperList.append(UperInfo('柴知道',          '26798384',))
+    uperList.append(UperInfo('回形针PaperClip', '258150656'))
+    uperList.append(UperInfo('柴知道',          '26798384',))
     saveRootPath = r'D:\Bilibili'
     # 并发数
     concurrency = 3

@@ -18,6 +18,9 @@ def CheckRedirectUrl(url):
     
     result = requestSession.get(start_url, headers=headers)
     if result.status_code == 200:
-        return result.json()['data']['redirect_url']
+        if 'redirect_url' in result.json()['data']:
+            return result.json()['data']['redirect_url']
+        else:
+            return url
     else:
         return None
