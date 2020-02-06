@@ -13,12 +13,8 @@ import os
 #                 datefmt='%Y-%m-%d %H:%M:%S')
 
 class LogHelper(object):
-    def __init__(self, iName, debug = False, cmdLevel = 'INFO', fileLevel = 'INFO'):
-        if debug == True:
-            logger = logging.getLogger()
-        else:
-            logger = logging.getLogger(iName)
-
+    def __init__(self, iName, cmdLevel = 'INFO', fileLevel = 'INFO'):
+        logger = logging.getLogger(iName)
         logger.setLevel('DEBUG')
         BASIC_FORMAT = '%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s'
         DATE_FORMAT = '%Y-%m-%d %H:%M:%S'

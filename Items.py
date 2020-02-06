@@ -18,6 +18,10 @@ class BiliBiliItem(Item):
             return newValue
 
     async def clean_time(self, value):
+        # 说明日期不符合格式，估计是中文，比如，昨天
+        if value.find('-') < 0:
+            return None
+            
         vlist = value.split('-')
         # Y M D
         if len(vlist) == 3:
@@ -48,3 +52,7 @@ class PageItem(Item):
         else:
             raise Exception("Error:PageItem re.findall -> pageInfo.count")
         return nowpgCount
+
+class VideoCountItem(Item):
+    target_item = TextField(css_select='li.contribution-item.cur')
+    count = TextField(css_select='span.num')
