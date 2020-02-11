@@ -47,7 +47,7 @@ class UserItem(Item):
     UserName = TextField(xpath_select='//span[@id="h-name"]')
 
 class PageItem(Item):
-    target_item = TextField(css_select='div.content')
+    target_item = TextField(css_select='ul.be-pager')
     count = TextField(css_select='span.be-pager-total')
 
     async def clean_count(self, value):

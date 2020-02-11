@@ -352,7 +352,7 @@ if __name__ == '__main__':
     uperList.append(UperInfo('巫师财经',        '472747194'))
     uperList.append(UperInfo('回形针PaperClip', '258150656'))
     uperList.append(UperInfo('柴知道',          '26798384',))
-    saveRootPath = r'D:\Bilibili'
+    saveRootPath = r'Y:\科普'
     # 并发数
     concurrency = 3
 
