@@ -16,6 +16,8 @@ class Downloader():
 
     def ProcessOne(self):
         try:
+            if os.path.exists(self.directory) == False:
+                os.makedirs(self.directory)
             # 去除特殊字符，否则下载文件会有问题
             fileName = re.sub('[\/:*?"<>|]','-', self.title)
             self.newUrl = CheckRedirectUrl(self.url)
