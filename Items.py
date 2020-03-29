@@ -29,12 +29,12 @@ class BiliBiliItem(Item):
             vlist = value.split('-')
             # Y M D
             if len(vlist) == 3:
-                date = datetime.datetime.strptime(value, '%Y-%m-%d')
+                date = datetime.datetime.strptime(value.strip(), '%Y-%m-%d')
                 nowTime = date.strftime("%Y-%m-%d")
                 return nowTime
             elif len(vlist) == 2:
-                date = str(datetime.datetime.now().year) + "-" + value
-                date = datetime.datetime.strptime(date, '%Y-%m-%d')
+                date = str(datetime.datetime.now().year) + "-" + value.strip()
+                date = datetime.datetime.strptime(date.strip(), '%Y-%m-%d')
                 nowTime = date.strftime("%Y-%m-%d")
                 return nowTime
             else:
