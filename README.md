@@ -28,6 +28,33 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 
 ## How
 
+### 安装依赖
+
+以下是 Pipfile 文件，使用 pipenv 安装。建议保持最新。
+
+`[[source]]`
+`name = "pypi"`
+`url = "https://pypi.tuna.tsinghua.edu.cn/simple"`
+`verify_ssl = true`
+
+`[dev-packages]`
+
+`[packages]`
+`ruia-pyppeteer = "*"
+fake-useragent = "*"`
+`ruia = "*"
+pretty-errors = "*"`
+`you-get = "*"
+requests = "*"`
+`beautifulsoup4 = "*"`
+
+`[requires]`
+`python_version = "3.6"`
+
+pipfile 没有放进来的原因是 pipenv 创建的是一个大目录的虚拟环境，本项目仅仅是其中一个，所以 pipfile 不在其中。手动添加下。
+
+### 入口点
+
 参考 Main.py 。
 
 ![00](ReadMe/00.png)
