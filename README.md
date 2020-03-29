@@ -28,7 +28,7 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 
 ## How
 
-参考 BiliSpider.py 。
+参考 Main.py 。
 
 ![00](ReadMe/00.png)
 
