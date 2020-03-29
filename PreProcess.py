@@ -64,8 +64,11 @@ class PreProcess():
     def ProcessOneUper(self, uper):
         self.logger.info('Analysis ' + uper.UserName + ' MainVideoPage Start···')
         pageInfo, videoCountInfo, userInfo = asyncio.get_event_loop().run_until_complete(self.GetPageInfo(uper.MainVideoPageUrl))
-        uper.PageCount = pageInfo.count
-        uper.NeedDownloadFilmCount = int(videoCountInfo.count)
+        if pageInfo is None:
+            uper.PageCount = 0
+        else:
+            uper.PageCount = pageInfo.count
+            uper.NeedDownloadFilmCount = int(videoCountInfo.count)
         self.logger.info('Analysis ' + uper.UserName + ' MainVideoPage Done.')
 
     def Process(self):
@@ -92,22 +95,26 @@ class PreProcess():
         self.logger.info('PreProcess.Process Done.')
 
     async def GetPageInfo(self, url):
-        self.logger.info("Requesting " + url)
-        request = Request(url, load_js=True)
-        response = await request.fetch()
-        self.logger.info("fetched " + url)
+        try:
+            self.logger.info("Requesting " + url)
+            request = Request(url, load_js=True)
+            response = await request.fetch()
+            self.logger.info("fetched " + url)
 
-        self.logger.info("PageItem.get_item start")
-        pageInfo = await PageItem.get_item(html=response.html)
-        self.logger.info("PageItem.get_item end")
+            self.logger.info("PageItem.get_item start")
+            pageInfo = await PageItem.get_item(html=response.html)
+            self.logger.info("PageItem.get_item end")
 
-        self.logger.info("VideoCountItem.get_item start")
-        VideoCountInfo = await VideoCountItem.get_item(html=response.html)
-        self.logger.info("VideoCountItem.get_item end")
-    
-        self.logger.info("UserItem.get_item start")
-        userInfo = await UserItem.get_item(html=response.html)
-        self.logger.info("UserItem.get_item end")
-
+            self.logger.info("VideoCountItem.get_item start")
+            VideoCountInfo = await VideoCountItem.get_item(html=response.html)
+            self.logger.info("VideoCountItem.get_item end")
+        
+            self.logger.info("UserItem.get_item start")
+            userInfo = await UserItem.get_item(html=response.html)
+            self.logger.info("UserItem.get_item end")
+        except Exception as ex:
+            self.logger.error('GetPageInfo Error: ' + str(ex))
+            return None, None, None
+        
         return pageInfo, VideoCountInfo, userInfo
       
