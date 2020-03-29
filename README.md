@@ -22,7 +22,7 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 
 ## Update
 
-* 2020年3月29日，务必更新 ruia 、ruia-pyppeteer、you-get 到最新；
+* 2020年3月29日，新增 BV 转 AV 逻辑感谢，知乎 mcfx 提供代码，更新 ruia 、ruia-pyppeteer、you-get 到最新；
 * 2020年2月6日，重构，加强异常处理，spider 可以并发，downloader 依然是单线程；
 * 2020年2月4日，初版；
 
