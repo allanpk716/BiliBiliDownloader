@@ -4,7 +4,8 @@ from you_get import common as you_get
 from Common import CheckRedirectUrl
 
 try:
-    kk = "www.bilibili.com/video/av70593729"
+    # kk = "www.bilibili.com/video/av70593729"
+    kk = "www.bilibili.com/video/BV1QE411c73B"
     newll = CheckRedirectUrl(kk)
 
     directory = r"D:\Bilibili"
