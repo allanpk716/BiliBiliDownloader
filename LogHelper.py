@@ -25,7 +25,7 @@ class LogHelper(object):
         cmdHandler.setLevel(cmdLevel)
 
         # 输出到文件的handler
-        NowFileTime = time.strftime("%Y-%m-%d_%H-%M-%S" + iName, time.localtime()) #  %H-%M-%S
+        NowFileTime = time.strftime("%Y-%m-%d_%H-%M-%S -- " + iName, time.localtime()) #  %H-%M-%S
         nowdirs = 'Logs\\'
         if not os.path.exists(nowdirs):
             os.makedirs(nowdirs)
@@ -33,7 +33,7 @@ class LogHelper(object):
         fileHandler.setFormatter(formatter)
         fileHandler.setLevel(fileLevel)
 
-        logger.addHandler(cmdHandler)
+        # logger.addHandler(cmdHandler)
         logger.addHandler(fileHandler)
         
         self.logger = logger

@@ -1,0 +1,41 @@
+kind: pipeline
+type: docker
+name: default
+
+steps:
+# 构建代码 docker 镜像
+-   name: Build Docker
+    image: plugins/docker:18.09.2
+    settings:
+        auto_tag: true
+        tags:
+        - ${DRONE_TAG}
+        - latest
+        insecure: true         #私有仓库未设置HTTPS需要启用这个选项
+        storage_driver: vfs    #出错原因就是它
+        registry: 192.168.50.252:65000
+        repo: 192.168.50.252:65000/allanpk716/bilibilidownloader
+        cache_from: 192.168.50.252:65000/allanpk716/bilibilidownloader
+        username: 
+            from_secret: docker_pushername
+        password: 
+            from_secret: docker_pusherpwd
+    when:
+        event:
+        - tag
+# Bark 通知
+-   name: Bark Notify
+    image: byrnedo/alpine-curl
+    environment:
+        barkfront:
+            from_secret: bark_front
+        droneweb: 
+            from_secret: drone_web
+    commands:
+    - curl "$barkfront/${DRONE_REPO_NAME}?url=$droneweb/${DRONE_REPO}/${DRONE_BUILD_NUMBER}"
+    when:
+        event:
+        - tag
+        status:
+        - success
+        - failure

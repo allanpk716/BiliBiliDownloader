@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.tuna.tsinghua.edu.cn/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+
+[packages]
+ruia-pyppeteer = "*"
+fake-useragent = "*"
+ruia = "*"
+pretty-errors = "*"
+you-get = "*"
+requests = "*"
+beautifulsoup4 = "*"
+
+[requires]
+python_version = "3.8"

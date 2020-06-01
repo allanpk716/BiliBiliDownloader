@@ -1,0 +1,3 @@
+[DownloadConfig]
+saveRootPath=/download
+concurrency=3

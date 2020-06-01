@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pretty_errors
 import os
+import configparser
 from LogHelper import LogHelper
 from UperInfo import UperInfo 
 from PreProcess import PreProcess 
@@ -9,7 +10,33 @@ from Common import RandomSleep
 from middlewares import middleware
 
 from BiliSpider import BiliSpider
-# from Test2 import GithubDeveloperSpider
+
+# 结束 chrome 的僵尸进程
+import platform
+sysstr = platform.system()
+if(sysstr =="Windows"):
+    print("Call Windows tasks")
+    os.system('taskkill /im chrome.exe /F')
+elif(sysstr == "Linux"):
+    print("Call Linux tasks")
+    import signal
+    signal.signal(signal.SIGCLD, signal.SIG_IGN)
+else:
+    print("Other System tasks")
+
+
+def ReadDownloadList(downloadfile):
+    uperList = []
+    f = open(downloadfile, "r", encoding="utf-8")
+    lines = f.readlines()
+    for line in lines:
+        items = line.split('#')
+        if len(items) != 2:
+            raise Exception("DownloadList.txt Error," + line)
+        oneUper = UperInfo(items[0].strip(), int(items[1].strip()))
+        uperList.append(oneUper)
+    f.close()
+    return uperList
 
 def MainProcess(uperList, saveRootPath, concurrency = 3):
     logger = LogHelper('Bili', cmdLevel='INFO', fileLevel="DEBUG").logger
@@ -106,19 +133,25 @@ def MainProcess(uperList, saveRootPath, concurrency = 3):
         logger.info("All Done.")
 
 if __name__ == '__main__':
+    cf = configparser.ConfigParser()
+    cf.read("config.ini", encoding="utf-8")
+    # --------------------------------------------------------------
+    # 读取外部配置
+    # 下载的根目录
+    saveRootPath = cf.get("DownloadConfig", "saveRootPath")
+    # 并发数
+    concurrency = int(cf.get("DownloadConfig", "concurrency"))
     # --------------------------------------------------------------
     # 设置需要下载的信息
-    # 每个 UP 主视频的总数
-    uperList = []
-    # https://space.bilibili.com/9458053/video
-    #                        用户名        用户的 VideoPage ID数
-    uperList.append(UperInfo('李永乐',          '9458053'))
-    uperList.append(UperInfo('巫师财经',        '472747194'))
-    uperList.append(UperInfo('回形针PaperClip', '258150656'))
-    uperList.append(UperInfo('柴知道',          '26798384',))
-    uperList.append(UperInfo('吟游诗人基德',     '510856133',))
-    saveRootPath = r'Y:\科普'
-    # 并发数
-    concurrency = 3
+    # 每个 UP 主视频
+    downloadlistfile = 'DownloadList.txt'
+    if os.path.exists(downloadlistfile) == True:
+        filmList = ReadDownloadList(downloadlistfile)
+    else:
+        raise Exception("DownloadList.txt not found")
+
+    uperList = ReadDownloadList(downloadlistfile)
 
     MainProcess(uperList, saveRootPath, concurrency)
+
+    print("Done.")
