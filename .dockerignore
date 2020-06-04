@@ -24,6 +24,9 @@
 **/values.dev.yaml
 
 **/*.log
+**/*.bmp
+**/*.jpg
+**/*.png
 **/*.ini
 **/*.txt
 !**/requirements.txt

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pretty_errors
 import os
+import re
 import configparser
 from LogHelper import LogHelper
 from UperInfo import UperInfo 
@@ -10,6 +11,8 @@ from Common import RandomSleep
 from middlewares import middleware
 
 from BiliSpider import BiliSpider
+
+repattern = r"\d{4}-\d{2}-\d{2}_"
 
 # 结束 chrome 的僵尸进程
 import platform
@@ -89,9 +92,12 @@ def MainProcess(uperList, saveRootPath, concurrency = 3):
         logger.info("Start Sync Dic")
         for uper in pp.uperList:
             iNeedDl = 0
+            
             for fileName, oneVideo in zip(uper.VideoInfoDic_loaclFileName.keys(), uper.VideoInfoDic_loaclFileName.values()):
-                if fileName in uper.VideoInfoDic_NetFileName:
-                    uper.VideoInfoDic_NetFileName[fileName].isDownloaded = oneVideo.isDownloaded
+                # 匹配到对应的项目才进行处理
+                findList = list(filter(lambda d: d.split('_')[1] == fileName, uper.VideoInfoDic_NetFileName.keys()))
+                if any(findList):
+                    uper.VideoInfoDic_NetFileName[findList[0]].isDownloaded = oneVideo.isDownloaded
                     if oneVideo.isDownloaded == False:
                         iNeedDl = iNeedDl + 1
             logger.info(uper.UserName + "NetFile / LocalFile -- NeedDl: " + str(len(uper.VideoInfoDic_NetFileName)) + " / " + str(len(uper.VideoInfoDic_loaclFileName)) + " -- " + str(iNeedDl))

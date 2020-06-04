@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import operator as op
+import re
 from VideoInfo import VideoInfo 
 from UperInfo import UperInfo 
 
@@ -10,6 +11,8 @@ from Common import RandomSleep
 
 from ruia_pyppeteer import PyppeteerRequest as Request
 from Items import PageItem, BiliBiliItem, UserItem, VideoCountItem
+
+repattern = r"\d{4}-\d{2}-\d{2}_"
 
 class PreProcess():
     def __init__(self, **kwargs):
@@ -49,10 +52,18 @@ class PreProcess():
                 if nowUper == None:
                     continue
                 extensionName = os.path.splitext(fname)[-1]
+                # 因为会下载到弹幕，所以需要进行过滤
                 if op.eq(extensionName, '.flv') == True or op.eq(extensionName, '.mp4') == True:
+                    fName_TMP = re.findall(repattern, fname, flags=0)
+                    if len(fName_TMP) != 1:
+                        # 说明不是符合规范下载的视频，不计入进去
+                        self.logger.info(fname)
+                        continue
+                    datetimeTmp = fName_TMP[0]
+                    
                     vi = VideoInfo('')
-                    # 将本地已经下载的文件，去除后缀名
-                    vi.loaclFileName = fname.replace(extensionName, '')
+                    # 将本地已经下载的文件，去除后缀名，以及前缀的日期
+                    vi.loaclFileName = fname.replace(extensionName, '').replace(datetimeTmp, '')
                     vi.isDownloaded = True
                     nowUper.VideoInfoDic_loaclFileName[vi.loaclFileName] = vi
 
