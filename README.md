@@ -1,5 +1,7 @@
 
 
+[TOC]
+
 # BiliBiliDownloader
 
 BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法再说 [doge]）。
@@ -19,10 +21,12 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 * 自动根据 UP 主，为文件夹单位存放视频
 * 不会重复下载（you-get 搞定的下载，所以赖得写日期过滤逻辑，除非 UP 改了 video 的描述 [doge]）
 * 下载弹幕（you-get 自动下载的 *.cmt.xml 文件，其实也不是很需要，又不能互动 [doge]）
+* 支持 Docker
 
 ## Update
 
-* 2020年3月29日，新增 BV 转 AV 逻辑感谢，知乎 [mcfx](https://www.zhihu.com/question/381784377/answer/1099438784) 提供代码，更新 ruia 、ruia-pyppeteer、you-get 到最新；
+* 2020年6月5日，支持 Docker（可用丢群晖跑，不用开 PC 了），修复重复下载的问题（页面爬取的日期与之前爬的日期-1天致判断未下载，这什么梗）；
+* 2020年3月29日，新增 BV 转 AV 逻辑。感谢，知乎 [mcfx](https://www.zhihu.com/question/381784377/answer/1099438784) 提供代码，更新 ruia 、ruia-pyppeteer、you-get 到最新；
 * 2020年2月6日，重构，加强异常处理，spider 可以并发，downloader 依然是单线程；
 * 2020年2月4日，初版；
 
@@ -32,7 +36,7 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 
 有提供了两个文件
 
-* Pipfile，lock 的文件没有提供是因为实在的网络问题 lock 不上，都是 --skip-lock 来用的 doge
+* Pipfile，lock 的文件没有提供是因为实在的网络问题 lock 不上，都是 --skip-lock 来用的 [doge]
 * requirements.txt，这个是根据 pipevn 导出的，docker build 基于这个
 
 如果想要用最新的组件，那么就是前者，稳定性未知。
@@ -41,12 +45,12 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 
 ### 配置文件
 
-这里需要设置两个配置文件，默认在项目组没有直接包含，需要从以下文件去除 .sample 后缀名来使用
+这里需要设置两个配置文件，默认在项目组没有直接包含，需要从以下文件去除 .sample 后缀名来使用，丢软件根目录下。
 
 项目中提供了两个示例：
 
 * config.ini.sample
-* DownloadList.txt.sample
+* DownloadList.txt.sample，务必保证是 **UTF-8** 的编码，不然后面都会出错。
 
 记得，使用的时候，也放在本程序的根目录下，且去除 .sample 后缀名来使用。
 
@@ -59,7 +63,7 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 PS：番剧什么的没有需求，以后可能会实现。playlist 也没实现，暂无需求。
 
 
-#### 直接运行，使用配置
+#### 1. 直接运行，使用配置
 
 这里举例，Windows 情况。 config.ini  修改为
 
@@ -88,14 +92,16 @@ DownloadList.txt 修改为你想要下载的 Uper 主。
 
 然后找到 Main.py 运行即可。
 
-#### 使用 docker 镜像运行，使用配置
+#### 2. 使用 docker 镜像运行，使用配置
 
-**注意**，因为网络坑爹问题，所以在引用镜像的时候使用了内网的，自己 docker build 的时候，务必改 dockerfile 的第一行。然后因为做了自定义源的修改，所以就不打算推送到 dockerhub，自己 build 一下还是很轻松的。
+**注意**，因为网络坑爹问题，所以在引用镜像的时候使用了内网的（自建了内网 Registry），自己 docker build 的时候，务必改 dockerfile 的第一行。然后因为做了自定义源的修改，所以就不打算推送到 dockerhub，自己 build 一下还是很轻松的。
 
 ```dockerfile
 # 你需要改为你私有的，或者是把 192.168.50.252:65000/ 去掉直接使用 dockerhub 的源
 FROM 192.168.50.252:65000/danielkelleher/pyppeteer_spider:1.03
 ```
+
+算了，还是推送一份到 DockerHub 吧 [doge]
 
 后续的配置主要就是映射 volume，因为是使用 portainer 来操作 docker 容器的所以就截图了
 
@@ -113,7 +119,9 @@ concurrency=3
 
 DownloadList.txt 内容参考上面的。
 
-剩下就是**权限**问题，这里取巧给的是 root 的权限，这样与 docker run 的所有者权限一致，详情见 dockerfile。不然下载的时候没有权限。
+剩下就是**权限**问题（Docker Build 的时候写固定了，因为群晖是 root 开启的 Docker），这里取巧给的是 root 的权限，这样与 docker run 的所有者权限一致，详情见 dockerfile。相应的你的下载目标文件夹，也得是 root 有权限，不然下载的时候没有权限。
+
+dockerfile 中的权限设置部分：
 
 ```dockerfile
 RUN chown -R 0 /app \
@@ -151,7 +159,7 @@ id root
 
 如果发现下载不了（注意看粗体）：
 
-1. 由于 pyppeteer 不正确结束会出现大量的 chrome 僵尸进程，所以，现在
+1. ~~由于 pyppeteer 不正确结束会出现大量的 chrome 僵尸进程，所以，现在启动的瞬间会去 kill Chrome 的进程，你浏览器被关闭就这原因；~~  注释掉了；
 2. 网络不好，导致页面读取不全，引起异常；
 3. 很可能是爬虫解析页面的逻辑失效了；
 4. 有可能是 you-get 下载失效了，自己更新下 you-get 的执行文件；
