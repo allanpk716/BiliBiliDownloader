@@ -1,0 +1,14 @@
+version: '3'          
+services:
+    bilibilidownloader:
+        image: 192.168.50.252:65000/allanpk716/bilibilidownloader:$tag$
+        container_name: bilibilidownloader
+        volumes:
+            - /volume1/docker/bilibilidownloader/DownloadList.txt:/app/DownloadList.txt
+            - /volume1/docker/bilibilidownloader/Logs:/app/Logs
+            - /volume1/docker/bilibilidownloader/config.ini:/app/config.ini
+            - /volume1/Video/科普:/app/download
+        deploy:
+            restart_policy:
+                delay: 10s
+                max_attempts: 3

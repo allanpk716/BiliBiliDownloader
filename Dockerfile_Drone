@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED 1
 
 # Install pip requirements
 ADD requirements.txt .
-RUN python3 -m pip install -r requirements.txt
+RUN python3 -m pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
 WORKDIR /app
 ADD . /app

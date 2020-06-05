@@ -1,8 +1,11 @@
-version: '3.4'
+version: '2'
 
 services:
-  bilibilidownloader:
-    image: bilibilidownloader
-    build:
-      context: .
-      dockerfile: Dockerfile
+  bilibilidownloader-server:
+    image: $imageName
+    container_name: bilibilidownloader
+    volumes:
+        - /volume1/docker/bilibilidownloader/DownloadList.txt:/app/DownloadList.txt
+        - /volume1/docker/bilibilidownloader/Logs:/app/Logs
+        - /volume1/docker/bilibilidownloader/config.ini:/app/config.ini
+        - /volume1/Video/科普:/app/download

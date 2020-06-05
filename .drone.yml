@@ -10,8 +10,8 @@ steps:
         dockerfile: Dockerfile_Drone
         auto_tag: true
         tags:
-        - ${DRONE_TAG}
-        - latest
+            - latest
+            - ${DRONE_TAG}
         insecure: true         #私有仓库未设置HTTPS需要启用这个选项
         storage_driver: vfs    #出错原因就是它
         registry: 192.168.50.252:65000
@@ -23,7 +23,26 @@ steps:
             from_secret: docker_pusherpwd
     when:
         event:
-        - tag
+            - tag
+
+# 部署
+-   name: deploy
+    image: allanpk716/drone-portainer:latest
+    settings:
+        url: http://192.168.50.252:9000
+        insecure: true
+        username:
+            from_secret: portainer_username
+        password:
+            from_secret: portainer_password
+        endpoint: MyNas
+        stack: bilibilidownloader
+        tag: ${DRONE_TAG}
+        file: docker-stack.yml
+    when:
+        event:
+            - tag
+
 # Bark 通知
 -   name: Bark Notify
     image: byrnedo/alpine-curl
@@ -33,10 +52,10 @@ steps:
         droneweb: 
             from_secret: drone_web
     commands:
-    - curl "$barkfront/${DRONE_REPO_NAME}?url=$droneweb/${DRONE_REPO}/${DRONE_BUILD_NUMBER}"
+        - curl "$barkfront/${DRONE_REPO_NAME}?url=$droneweb/${DRONE_REPO}/${DRONE_BUILD_NUMBER}"
     when:
         event:
-        - tag
+            - tag
         status:
-        - success
-        - failure
+            - success
+            - failure

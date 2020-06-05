@@ -2,6 +2,7 @@
 import pretty_errors
 import os
 import re
+import time
 import configparser
 from LogHelper import LogHelper
 from UperInfo import UperInfo 
@@ -133,17 +134,43 @@ if __name__ == '__main__':
     saveRootPath = cf.get("DownloadConfig", "saveRootPath")
     # 并发数
     concurrency = int(cf.get("DownloadConfig", "concurrency"))
-    # --------------------------------------------------------------
-    # 设置需要下载的信息
-    # 每个 UP 主视频
-    downloadlistfile = 'DownloadList.txt'
-    if os.path.exists(downloadlistfile) == True:
-        filmList = ReadDownloadList(downloadlistfile)
-    else:
-        raise Exception("DownloadList.txt not found")
+    # 重复的次数，-1 是一直循环
+    repeatTimes = 1
+    try:
+        repeatTimes = int(cf.get("DownloadConfig", "repeatTimes"))
+    except Exception as ex:
+        pass
+    # 重复的间隔 5h
+    delay = 5 * 3600
+    try:
+        delay = int(cf.get("DownloadConfig", "delay"))
+    except Exception as ex:
+        pass
 
-    uperList = ReadDownloadList(downloadlistfile)
+    while repeatTimes > 0 or repeatTimes == -1:
+        print('repeatTimes = ' + str(repeatTimes))
+        # --------------------------------------------------------------
+        # 设置需要下载的信息
+        # 每个 UP 主视频
+        downloadlistfile = 'DownloadList.txt'
+        if os.path.exists(downloadlistfile) == True:
+            filmList = ReadDownloadList(downloadlistfile)
+        else:
+            raise Exception("DownloadList.txt not found")
 
-    MainProcess(uperList, saveRootPath, concurrency)
+        uperList = ReadDownloadList(downloadlistfile)
+
+        MainProcess(uperList, saveRootPath, concurrency)
+
+        if repeatTimes > 0:
+            repeatTimes = repeatTimes - 1
+
+        # 如果只是运行一次，那么就无需等待，马上退出
+        if repeatTimes == 0:
+            pass
+        else:
+            time.sleep(delay)
+        
+        print('MainProcess One Time Done.')
 
     print("Done.")
