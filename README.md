@@ -94,14 +94,7 @@ DownloadList.txt 修改为你想要下载的 Uper 主。
 
 #### 2. 使用 docker 镜像运行，使用配置
 
-**注意**，因为网络坑爹问题，所以在引用镜像的时候使用了内网的（自建了内网 Registry），自己 docker build 的时候，务必改 dockerfile 的第一行。然后因为做了自定义源的修改，所以就不打算推送到 dockerhub，自己 build 一下还是很轻松的。
-
-```dockerfile
-# 你需要改为你私有的，或者是把 192.168.50.252:65000/ 去掉直接使用 dockerhub 的源
-FROM 192.168.50.252:65000/danielkelleher/pyppeteer_spider:1.03
-```
-
-算了，还是推送一份到 DockerHub 吧 [doge]
+这里分了两个 dockerfile，因为会在家自己 build，指向的是私有的 registry。
 
 后续的配置主要就是映射 volume，因为是使用 portainer 来操作 docker 容器的所以就截图了
 
