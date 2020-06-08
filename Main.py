@@ -15,6 +15,19 @@ from BiliSpider import BiliSpider
 
 repattern = r"\d{4}-\d{2}-\d{2}_"
 
+# 结束 chrome 的僵尸进程
+def CloseChrome():
+    import platform
+    sysstr = platform.system()
+    if(sysstr =="Windows"):
+        print("Call Windows tasks")
+        os.system('taskkill /im chrome.exe /F')
+    elif(sysstr == "Linux"):
+        print("Call Linux tasks")
+        os.system('pkill chrome')
+    else:
+        print("Other System tasks")
+
 def ReadDownloadList(downloadfile):
     uperList = []
     f = open(downloadfile, "r", encoding="utf-8")
@@ -169,6 +182,7 @@ if __name__ == '__main__':
         if repeatTimes == 0:
             pass
         else:
+            CloseChrome()
             time.sleep(delay)
         
         print('MainProcess One Time Done.')
