@@ -1,3 +1,5 @@
 [DownloadConfig]
 saveRootPath=/download
 concurrency=3
+repeatTimes=1
+delay=18000

@@ -108,6 +108,10 @@ config.ini 的内容如下，注意，这里的下载目标的目录**必须**�
 [DownloadConfig]
 saveRootPath=/app/download
 concurrency=3
+; 重复的次数，-1 是一致循环，如果是 docker 挂机，那么建议是 -1
+repeatTimes=1
+; 秒为单位
+delay=18000
 ```
 
 DownloadList.txt 内容参考上面的。
