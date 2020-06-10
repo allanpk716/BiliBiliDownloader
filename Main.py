@@ -16,6 +16,16 @@ from BiliSpider import BiliSpider
 
 repattern = r"\d{4}-\d{2}-\d{2}_"
 
+class ConfigInfo():
+    def __init__(self):
+        self.saveRootPath = ""
+        self.concurrency = ""
+        self.barkurl = ""
+        self.barkapikey = ""
+        self.notifyurl = ""
+        self.repeatTimes = 1
+        self.delay = 0
+
 # 结束 chrome 的僵尸进程
 def CloseChrome():
     import platform
@@ -42,8 +52,7 @@ def ReadDownloadList(downloadfile):
     f.close()
     return uperList
 
-def MainProcess(uperList, saveRootPath, concurrency = 3):
-    logger = LogHelper('Bili', cmdLevel='INFO', fileLevel="DEBUG").logger
+def MainProcess(logger, uperList, saveRootPath, concurrency = 3):
     pp = None
     try:
         # --------------------------------------------------------------
@@ -146,48 +155,41 @@ def BarkMe(barkurl, apikey, title, url4show):
     except Exception as ex:
         print('BarkMe Error:' + str(ex))
 
-if __name__ == '__main__':
+def ReadConfigIni():
     cf = configparser.ConfigParser()
     cf.read("config.ini", encoding="utf-8")
+    configInfo = ConfigInfo()
+    # 下载的根目录
+    configInfo.saveRootPath = cf.get("DownloadConfig", "saveRootPath")
+    # 并发数
+    configInfo.concurrency = int(cf.get("DownloadConfig", "concurrency"))
+    # Bark Url
+    configInfo.barkurl = 'https://baidu.com'
+    # Bark apikey
+    configInfo.barkapikey = '1234567'
+    # Notity Url
+    configInfo.notifyurl = 'https://www.baidu.com'
+    # 重复的次数，-1 是一直循环
+    configInfo.repeatTimes = 1
+    # 重复的间隔 5h
+    configInfo.delay = 5 * 3600
+
+    configInfo.barkurl = cf.get("BarkConfig", "barkurl")
+    configInfo.barkapikey = cf.get("BarkConfig", "barkapikey")
+    configInfo.notifyurl = cf.get("BarkConfig", "notifyurl")
+    configInfo.repeatTimes = int(cf.get("DownloadConfig", "repeatTimes"))
+    configInfo.delay = int(cf.get("DownloadConfig", "delay"))
+
+    return configInfo
+
+if __name__ == '__main__':
     # --------------------------------------------------------------
     # 读取外部配置
-    # 下载的根目录
-    saveRootPath = cf.get("DownloadConfig", "saveRootPath")
-    # 并发数
-    concurrency = int(cf.get("DownloadConfig", "concurrency"))
-    # Bark Url
-    barkurl = 'https://baidu.com'
-    try:
-        barkurl = cf.get("BarkConfig", "barkurl")
-    except Exception as ex:
-        pass
-    # Bark apikey
-    barkapikey = '1234567'
-    try:
-        barkapikey = cf.get("BarkConfig", "barkapikey")
-    except Exception as ex:
-        pass
-    # Notity Url
-    notifyurl = 'https://www.baidu.com'
-    try:
-        notifyurl = cf.get("BarkConfig", "notifyurl")
-    except Exception as ex:
-        pass
-    # 重复的次数，-1 是一直循环
-    repeatTimes = 1
-    try:
-        repeatTimes = int(cf.get("DownloadConfig", "repeatTimes"))
-    except Exception as ex:
-        pass
-    # 重复的间隔 5h
-    delay = 5 * 3600
-    try:
-        delay = int(cf.get("DownloadConfig", "delay"))
-    except Exception as ex:
-        pass
+    configInfo = ReadConfigIni()
 
-    while repeatTimes > 0 or repeatTimes == -1:
-        print('repeatTimes = ' + str(repeatTimes))
+    while configInfo.repeatTimes > 0 or configInfo.repeatTimes <= -1:
+        logger = LogHelper('Bili', cmdLevel='INFO', fileLevel="DEBUG").logger
+        logger.info('repeatTimes = ' + str(configInfo.repeatTimes))
         # --------------------------------------------------------------
         # 设置需要下载的信息
         # 每个 UP 主视频
@@ -195,24 +197,25 @@ if __name__ == '__main__':
         if os.path.exists(downloadlistfile) == True:
             filmList = ReadDownloadList(downloadlistfile)
         else:
+            logger.error("DownloadList.txt not found")
             raise Exception("DownloadList.txt not found")
 
         uperList = ReadDownloadList(downloadlistfile)
 
-        MainProcess(uperList, saveRootPath, concurrency)
+        MainProcess(logger, uperList, configInfo.saveRootPath, configInfo.concurrency)
 
-        BarkMe(barkurl, barkapikey, 'Job 4 Bilibli', notifyurl)
+        BarkMe(configInfo.barkurl, configInfo.barkapikey, 'Job 4 Bilibli', configInfo.notifyurl)
 
-        if repeatTimes > 0:
-            repeatTimes = repeatTimes - 1
+        if configInfo.repeatTimes > 0:
+            configInfo.repeatTimes = configInfo.repeatTimes - 1
 
         # 如果只是运行一次，那么就无需等待，马上退出
-        if repeatTimes == 0:
+        if configInfo.repeatTimes == 0:
             pass
         else:
             CloseChrome()
-            time.sleep(delay)
+            time.sleep(configInfo.delay)
         
-        print('MainProcess One Time Done.')
+        logger.info('MainProcess One Time Done.')
 
     print("Done.")

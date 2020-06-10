@@ -4,15 +4,14 @@ import time
 import re
 import requests
 from ABV import ABV
-from fake_useragent import UserAgent
-ua = UserAgent()
+import fakeagent
 
 def RandomSleep():
     time.sleep(random.randint(0, 5))
 
 def CheckRedirectUrl(url):
     inUrl = 'https://' + url
-    headers = {'User-Agent': ua.random}
+    headers = {'User-Agent': fakeagent.ua.random}
     requestSession = requests.session()
 
     fAv = r'/av(\d+)/*'

@@ -13,8 +13,12 @@ RUN python3 -m pip install -r requirements.txt
 
 WORKDIR /app
 ADD . /app
+COPY fake_agent /app/fake_agent
 COPY download /app/download
 COPY Logs /app/Logs
+
+# RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+#     && echo 'Asia/Shanghai' >/etc/timezone
 
 # Switching to a non-root user, please refer to https://aka.ms/vscode-docker-python-user-rights
 # RUN useradd appuser \

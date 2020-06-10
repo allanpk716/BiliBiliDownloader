@@ -8,6 +8,7 @@ services:
             - /volume1/docker/bilibilidownloader/Logs:/app/Logs
             - /volume1/docker/bilibilidownloader/config.ini:/app/config.ini
             - /volume1/Video/科普:/app/download
+            - /etc/localtime:/etc/localtime
         deploy:
             restart_policy:
                 condition: on-failure

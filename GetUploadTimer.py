@@ -1,12 +1,11 @@
 import requests
 import datetime
 from bs4 import BeautifulSoup
-from fake_useragent import UserAgent
-ua = UserAgent()
+import fakeagent
 
 def Get(inUrl):
     inUrl = 'https://' + inUrl
-    headers = {'User-Agent': ua.random}
+    headers = {'User-Agent': fakeagent.ua.random}
     requestSession = requests.session()
     result = requestSession.get(inUrl, headers=headers)
     if result.status_code == 200:

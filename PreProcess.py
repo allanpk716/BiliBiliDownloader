@@ -74,12 +74,18 @@ class PreProcess():
         
     def ProcessOneUper(self, uper):
         self.logger.info('Analysis ' + uper.UserName + ' MainVideoPage Start···')
-        pageInfo, videoCountInfo, userInfo = asyncio.get_event_loop().run_until_complete(self.GetPageInfo(uper.MainVideoPageUrl))
+
+        loop = asyncio.get_event_loop_policy().new_event_loop()
+        asyncio.set_event_loop(loop)
+        pageInfo, videoCountInfo, _ = loop.run_until_complete(self.GetPageInfo(uper.MainVideoPageUrl))
+        loop.close()
+
         if pageInfo is None:
             uper.PageCount = 0
         else:
             uper.PageCount = pageInfo.count
             uper.NeedDownloadFilmCount = int(videoCountInfo.count)
+
         self.logger.info('Analysis ' + uper.UserName + ' MainVideoPage Done.')
 
     def Process(self):

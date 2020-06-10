@@ -54,6 +54,12 @@ BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法�
 
 记得，使用的时候，也放在本程序的根目录下，且去除 .sample 后缀名来使用。
 
+#### fake agent
+
+有可能无法获取 fake agent 的数据，https://fake-useragent.herokuapp.com/browsers/0.1.11
+
+后面的代码都会使用本地缓存。
+
 ### 如何启动运行
 
 有两种方式运行，根据自己的情况选择。

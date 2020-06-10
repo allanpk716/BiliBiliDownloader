@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 from ruia import Middleware
-from fake_useragent import UserAgent
+import fakeagent
 
-ua = UserAgent()
 middleware = Middleware()
 
 @middleware.request
 async def print_on_request(spider_ins, request):
-    request.headers.update({'User-Agent': ua.random})
+    request.headers.update({'User-Agent': fakeagent.ua.random})
