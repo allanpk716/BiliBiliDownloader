@@ -3,3 +3,8 @@ saveRootPath=/download
 concurrency=3
 repeatTimes=1
 delay=18000
+
+[BarkConfig]
+barkurl=https://www.baidu.com
+barkapikey=1234567
+notifyurl=https://www.baidu.com

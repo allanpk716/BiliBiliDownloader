@@ -3,6 +3,7 @@ import pretty_errors
 import os
 import re
 import time
+import requests
 import configparser
 from LogHelper import LogHelper
 from UperInfo import UperInfo 
@@ -136,7 +137,14 @@ def MainProcess(uperList, saveRootPath, concurrency = 3):
                 if oneVideo.isDownloaded == False:
                     logger.error('Download Fail:' + uper.UserName)
                     logger.error(oneVideo.url)
-        logger.info("All Done.")
+        logger.info("This Time Done.")
+
+def BarkMe(barkurl, apikey, title, url4show):
+    try:
+        url = barkurl + '/' + apikey + '/' + title + '?url=' + url4show
+        requests.post(url)
+    except Exception as ex:
+        print('BarkMe Error:' + str(ex))
 
 if __name__ == '__main__':
     cf = configparser.ConfigParser()
@@ -147,6 +155,24 @@ if __name__ == '__main__':
     saveRootPath = cf.get("DownloadConfig", "saveRootPath")
     # 并发数
     concurrency = int(cf.get("DownloadConfig", "concurrency"))
+    # Bark Url
+    barkurl = 'https://baidu.com'
+    try:
+        barkurl = cf.get("BarkConfig", "barkurl")
+    except Exception as ex:
+        pass
+    # Bark apikey
+    barkapikey = '1234567'
+    try:
+        barkapikey = cf.get("BarkConfig", "barkapikey")
+    except Exception as ex:
+        pass
+    # Notity Url
+    notifyurl = 'https://www.baidu.com'
+    try:
+        notifyurl = cf.get("BarkConfig", "notifyurl")
+    except Exception as ex:
+        pass
     # 重复的次数，-1 是一直循环
     repeatTimes = 1
     try:
@@ -174,6 +200,8 @@ if __name__ == '__main__':
         uperList = ReadDownloadList(downloadlistfile)
 
         MainProcess(uperList, saveRootPath, concurrency)
+
+        BarkMe(barkurl, barkapikey, 'Job 4 Bilibli', notifyurl)
 
         if repeatTimes > 0:
             repeatTimes = repeatTimes - 1

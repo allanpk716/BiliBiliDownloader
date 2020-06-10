@@ -26,10 +26,11 @@ class LogHelper(object):
 
         # 输出到文件的handler
         NowFileTime = time.strftime("%Y-%m-%d_%H-%M-%S -- " + iName, time.localtime()) #  %H-%M-%S
-        nowdirs = 'Logs\\'
+        nowdirs = os.path.join(os.getcwd(), 'Logs') 
         if not os.path.exists(nowdirs):
             os.makedirs(nowdirs)
-        fileHandler = logging.FileHandler(filename= nowdirs + '{NowFileTime}.log'.format(NowFileTime=NowFileTime), mode='a') 
+        nowFileName = os.path.join(nowdirs, '{NowFileTime}.log'.format(NowFileTime=NowFileTime))
+        fileHandler = logging.FileHandler(filename=nowFileName , mode='a') 
         fileHandler.setFormatter(formatter)
         fileHandler.setLevel(fileLevel)
 
