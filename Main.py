@@ -187,25 +187,32 @@ if __name__ == '__main__':
     # 读取外部配置
     configInfo = ReadConfigIni()
 
-    while configInfo.repeatTimes > 0 or configInfo.repeatTimes <= -1:
+    while configInfo.repeatTimes > 0 or configInfo.repeatTimes == -1:
         logger = LogHelper('Bili', cmdLevel='INFO', fileLevel="DEBUG").logger
-        logger.info('repeatTimes = ' + str(configInfo.repeatTimes))
-        # --------------------------------------------------------------
-        # 设置需要下载的信息
-        # 每个 UP 主视频
-        downloadlistfile = 'DownloadList.txt'
-        if os.path.exists(downloadlistfile) == True:
-            filmList = ReadDownloadList(downloadlistfile)
-        else:
-            logger.error("DownloadList.txt not found")
-            raise Exception("DownloadList.txt not found")
 
-        uperList = ReadDownloadList(downloadlistfile)
+        try:
+            logger.info('repeatTimes = ' + str(configInfo.repeatTimes))
+            # --------------------------------------------------------------
+            # 设置需要下载的信息
+            # 每个 UP 主视频
+            downloadlistfile = 'DownloadList.txt'
+            if os.path.exists(downloadlistfile) == True:
+                filmList = ReadDownloadList(downloadlistfile)
+            else:
+                logger.error("DownloadList.txt not found")
+                raise Exception("DownloadList.txt not found")
 
-        MainProcess(logger, uperList, configInfo.saveRootPath, configInfo.concurrency)
+            uperList = ReadDownloadList(downloadlistfile)
 
-        BarkMe(configInfo.barkurl, configInfo.barkapikey, 'Job 4 Bilibli', configInfo.notifyurl)
+            MainProcess(logger, uperList, configInfo.saveRootPath, configInfo.concurrency)
 
+            BarkMe(configInfo.barkurl, configInfo.barkapikey, 'Job 4 Bilibli', configInfo.notifyurl)
+        except Exception as ex:
+            logger.error(ex)
+        finally:
+            logger.info('MainProcess One Time Done.')
+
+        # 等待
         if configInfo.repeatTimes > 0:
             configInfo.repeatTimes = configInfo.repeatTimes - 1
 
@@ -213,9 +220,11 @@ if __name__ == '__main__':
         if configInfo.repeatTimes == 0:
             pass
         else:
-            CloseChrome()
+            try:
+                CloseChrome()
+            except expression as identifier:
+                logger.error(ex)
+            
             time.sleep(configInfo.delay)
-        
-        logger.info('MainProcess One Time Done.')
 
     print("Done.")
