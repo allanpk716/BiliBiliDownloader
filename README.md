@@ -6,6 +6,8 @@
 
 BiliBili 多 UP 主，批量视频下载。不支持登录（想下的没办法再说 [doge]）。
 
+注意，本项目大方向不再更新，已经切换到新的项目中继续开发。[RSSDownloader](https://github.com/allanpk716/RSSDownloader)，详细请看对应项目的 ReadMe。
+
 ## 目的
 
 收藏 UP 主的视频，方便在家离线观看，也提前为娃整理知识库。
